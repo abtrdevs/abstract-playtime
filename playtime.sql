@@ -1,0 +1,2 @@
+ALTER TABLE users
+ADD playtime INT NOT NULL DEFAULT 0;
