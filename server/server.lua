@@ -10,6 +10,27 @@ local function getSteamHexIdentifier(source)
     return nil
 end
 
+function GetPlayerGroup(source)
+    local xPlayer = ESX.GetPlayerFromId(source)
+    return xPlayer.getGroup()
+end
+
+local function isAllowedGroup(source)
+    local allowedGroups = {
+        "admin",
+        "superadmin",
+    }
+
+    local playerGroup = GetPlayerGroup(source)
+    for _, group in ipairs(allowedGroups) do
+        if playerGroup == group then
+            return true
+        end
+    end
+
+    return false
+end
+
 local function loadPlaytime(source)
     local identifier = getSteamHexIdentifier(source)
     
@@ -65,6 +86,46 @@ AddEventHandler('playtime:track', function()
 
     TriggerClientEvent('playtime:update', source, playerPlaytime[source])
 end)
+
+RegisterCommand("setplaytime", function(source, args, rawCommand)
+    local source = source
+    if not isAllowedGroup(source) then
+        TriggerClientEvent('chat:addMessage', source, {
+            args = {"[!]", "You do not have permission to use this command."}
+        })
+        return
+    end
+
+    if #args < 3 then
+        TriggerClientEvent('chat:addMessage', source, {
+            args = {"[!]", "Usage: /setplaytime [hours] [minutes] [seconds]"}
+        })
+        return
+    end
+
+    local hours = tonumber(args[1])
+    local minutes = tonumber(args[2])
+    local seconds = tonumber(args[3])
+
+    if not hours or not minutes or not seconds then
+        TriggerClientEvent('chat:addMessage', source, {
+            args = {"[!]", "Invalid input. Please enter numbers for hours, minutes, and seconds."}
+        })
+        return
+    end
+
+    local playtimeInSeconds = (hours * 3600) + (minutes * 60) + seconds
+
+    playerPlaytime[source] = playtimeInSeconds
+    savePlaytime(source)
+
+    TriggerClientEvent('playtime:update', source, playtimeInSeconds)
+
+    TriggerClientEvent('chat:addMessage', source, {
+        args = {"[!]", "Your playtime has been updated."}
+    })
+end, false)
+
 
 AddEventHandler('playerDropped', function()
     local source = source
