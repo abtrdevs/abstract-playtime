@@ -13,7 +13,7 @@ local function disarmPlayerIfNeeded()
         if weapon ~= GetHashKey('WEAPON_UNARMED') then
             TriggerEvent('ox_inventory:disarm', PlayerId(), true)
             TriggerEvent('chat:addMessage', {
-                args = { '[System]', 'You cannot equip weapons until you have met the playtime requirement!' }
+                args = { '[!]', 'You cannot equip weapons until you have met the playtime of 24hrs requirement!' }
             })
         end
     end
@@ -32,6 +32,6 @@ RegisterCommand('playtime', function()
     local seconds = playerPlaytime % 60
 
     TriggerEvent('chat:addMessage', {
-        args = { '[Playtime]', string.format('You have been in the server for %d hours, %d minutes, %d seconds.', hours, minutes, seconds) }
+        args = { '[!]', string.format('You have been in the server for %d hours, %d minutes, %d seconds.', hours, minutes, seconds) }
     })
 end, false)
